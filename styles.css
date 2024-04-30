@@ -1,0 +1,19 @@
+body {
+    font-family: Arial, sans-serif;
+}
+
+h1, h2 {
+    color: #333;
+}
+
+#shapeTable {
+    margin-top: 20px;
+}
+
+label {
+    font-weight: bold;
+}
+
+button {
+    margin-top: 10px;
+}

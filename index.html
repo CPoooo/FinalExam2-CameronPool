@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Add Shape</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <h1>Add Shape</h1>
+    <form id="shapeForm">
+        <label for="shapeType">Shape Type:</label>
+        <select id="shapeType" name="shapeType">
+            <option value="circle">Circle</option>
+            <option value="rectangle">Rectangle</option>
+            <!-- Add more shape options as needed -->
+        </select><br><br>
+        
+        <!-- Input fields for shape dimensions -->
+        <div id="shapeDimensions">
+            <!-- These fields will be populated dynamically based on the selected shape type -->
+        </div>
+        
+        <button type="button" onclick="addShape()">Add Shape</button>
+    </form>
+
+    <!-- Display table of entered shapes -->
+    <h2>Entered Shapes</h2>
+    <table id="shapeTable">
+        <thead>
+            <tr>
+                <th>Shape Type</th>
+                <th>Dimensions</th>
+            </tr>
+        </thead>
+        <tbody>
+            <!-- This section will be populated dynamically with entered shapes -->
+        </tbody>
+    </table>
+
+    <!-- JavaScript to dynamically add shape dimensions inputs -->
+    <script src="server.js"></script>
+</body>
+</html>
