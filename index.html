@@ -13,6 +13,7 @@
         <select id="shapeType" name="shapeType">
             <option value="circle">Circle</option>
             <option value="rectangle">Rectangle</option>
+            <option value="triangle">Triangle</option>
             <!-- Add more shape options as needed -->
         </select><br><br>
         
@@ -33,12 +34,109 @@
                 <th>Dimensions</th>
             </tr>
         </thead>
-        <tbody>
+        <tbody id="enteredShapesTableBody">
             <!-- This section will be populated dynamically with entered shapes -->
         </tbody>
     </table>
 
     <!-- JavaScript to dynamically add shape dimensions inputs -->
-    <script src="server.js"></script>
+    <script>
+        // Function to show the corresponding input fields based on the selected shape type
+        function showShapeDimensions() {
+            // Get the selected shape type
+            const shapeType = document.getElementById('shapeType').value;
+
+            // Get the div element where shape dimensions fields will be populated
+            const shapeDimensionsDiv = document.getElementById('shapeDimensions');
+
+            // Clear the previous content
+            shapeDimensionsDiv.innerHTML = '';
+
+            // Show the corresponding input fields based on the selected shape type
+            switch (shapeType) {
+                case 'circle':
+                    shapeDimensionsDiv.innerHTML = `
+                        <label for="radius">Radius:</label>
+                        <input type="number" id="radius" name="radius" required>
+                        <br>
+                    `;
+                    break;
+                case 'rectangle':
+                    shapeDimensionsDiv.innerHTML = `
+                        <label for="length">Length:</label>
+                        <input type="number" id="length" name="length" required>
+                        <br>
+                        <label for="width">Width:</label>
+                        <input type="number" id="width" name="width" required>
+                        <br>
+                    `;
+                    break;
+                case 'triangle':
+                    shapeDimensionsDiv.innerHTML = `
+                        <label for="side1">Side 1:</label>
+                        <input type="number" id="side1" name="side1" required>
+                        <br>
+                        <label for="side2">Side 2:</label>
+                        <input type="number" id="side2" name="side2" required>
+                        <br>
+                        <label for="side3">Side 3:</label>
+                        <input type="number" id="side3" name="side3" required>
+                        <br>
+                    `;
+                    break;
+                default:
+                    // If no shape type is selected or unknown shape type, do nothing
+                    break;
+            }
+        }
+
+        // Add event listener to shape type dropdown to call the showShapeDimensions function when it changes
+        document.getElementById('shapeType').addEventListener('change', showShapeDimensions);
+
+        // Function to handle form submission
+        function addShape() {
+            // Get shape type from the form
+            const shapeType = document.getElementById('shapeType').value;
+
+            // Get shape dimensions from the form based on the selected shape type
+            let dimensions;
+            switch (shapeType) {
+                case 'circle':
+                    dimensions = { radius: parseFloat(document.getElementById('radius').value) };
+                    break;
+                case 'rectangle':
+                    dimensions = {
+                        length: parseFloat(document.getElementById('length').value),
+                        width: parseFloat(document.getElementById('width').value)
+                    };
+                    break;
+                case 'triangle':
+                    dimensions = {
+                        side1: parseFloat(document.getElementById('side1').value),
+                        side2: parseFloat(document.getElementById('side2').value),
+                        side3: parseFloat(document.getElementById('side3').value)
+                    };
+                    break;
+                default:
+                    // If no shape type is selected or unknown shape type, do nothing
+                    break;
+            }
+
+            // Add the entered shape to the "Entered Shapes" table
+            const tableBody = document.getElementById('enteredShapesTableBody');
+            const newRow = tableBody.insertRow();
+
+            // Insert cells for shape type and dimensions
+            const shapeTypeCell = newRow.insertCell();
+            const dimensionsCell = newRow.insertCell();
+
+            // Set the text content for the cells
+            shapeTypeCell.textContent = shapeType;
+            dimensionsCell.textContent = JSON.stringify(dimensions);
+
+            // Clear the form after adding the shape
+            document.getElementById('shapeForm').reset();
+        }
+    </script>
 </body>
 </html>
