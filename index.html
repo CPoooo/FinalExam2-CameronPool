@@ -3,138 +3,102 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Add Shape</title>
+    <title>Add Cone</title>
     <link rel="stylesheet" href="styles.css">
 </head>
 <body>
-    <h1>Add Shape</h1>
+    <h1>Add Cone</h1>
     <form id="shapeForm">
-        <label for="shapeType">Shape Type:</label>
-        <select id="shapeType" name="shapeType">
-            <option value="circle">Circle</option>
-            <option value="rectangle">Rectangle</option>
-            <option value="triangle">Triangle</option>
-            <!-- Add more shape options as needed -->
-        </select><br><br>
-        
-        <!-- Input fields for shape dimensions -->
-        <div id="shapeDimensions">
-            <!-- These fields will be populated dynamically based on the selected shape type -->
-        </div>
-        
-        <button type="button" onclick="addShape()">Add Shape</button>
+        <label for="radius">Radius:</label>
+        <input type="number" id="radius" name="radius" required>
+        <br>
+        <label for="height">Height:</label>
+        <input type="number" id="height" name="height" required>
+        <br>
+        <label for="slantHeight">Slant Height:</label>
+        <input type="number" id="slantHeight" name="slantHeight" required>
+        <br>
+        <button type="button" onclick="addCone()">Add Cone</button>
     </form>
 
-    <!-- Display table of entered shapes -->
-    <h2>Entered Shapes</h2>
-    <table id="shapeTable">
+    <!-- Display table of entered cones -->
+    <h2>Entered Cones</h2>
+    <table id="coneTable">
         <thead>
             <tr>
-                <th>Shape Type</th>
-                <th>Dimensions</th>
+                <th>Cone ID</th>
+                <th>Radius</th>
+                <th>Height</th>
+                <th>Slant Height</th>
             </tr>
         </thead>
-        <tbody id="enteredShapesTableBody">
-            <!-- This section will be populated dynamically with entered shapes -->
+        <tbody id="enteredConesTableBody">
+            <!-- This section will be populated dynamically with entered cones -->
         </tbody>
     </table>
 
-    <!-- JavaScript to dynamically add shape dimensions inputs -->
+    <!-- JavaScript to dynamically add cone dimensions inputs -->
     <script>
-        // Function to show the corresponding input fields based on the selected shape type
-        function showShapeDimensions() {
-            // Get the selected shape type
-            const shapeType = document.getElementById('shapeType').value;
+        let coneCounter = 0; // Counter for generating unique cone ids
 
-            // Get the div element where shape dimensions fields will be populated
-            const shapeDimensionsDiv = document.getElementById('shapeDimensions');
+        // Function to dynamically populate input fields for updating cone dimensions based on cone ID
+        function showUpdateConeDimensions() {
+            // Get the selected cone ID
+            const coneId = parseInt(document.getElementById('updateConeId').value);
 
-            // Clear the previous content
-            shapeDimensionsDiv.innerHTML = '';
+            // Find the corresponding cone in the table
+            const tableRows = document.getElementById('coneTable').getElementsByTagName('tr');
+            let dimensionsInputHTML = '';
 
-            // Show the corresponding input fields based on the selected shape type
-            switch (shapeType) {
-                case 'circle':
-                    shapeDimensionsDiv.innerHTML = `
-                        <label for="radius">Radius:</label>
-                        <input type="number" id="radius" name="radius" required>
-                        <br>
-                    `;
-                    break;
-                case 'rectangle':
-                    shapeDimensionsDiv.innerHTML = `
-                        <label for="length">Length:</label>
-                        <input type="number" id="length" name="length" required>
-                        <br>
-                        <label for="width">Width:</label>
-                        <input type="number" id="width" name="width" required>
-                        <br>
-                    `;
-                    break;
-                case 'triangle':
-                    shapeDimensionsDiv.innerHTML = `
-                        <label for="side1">Side 1:</label>
-                        <input type="number" id="side1" name="side1" required>
-                        <br>
-                        <label for="side2">Side 2:</label>
-                        <input type="number" id="side2" name="side2" required>
-                        <br>
-                        <label for="side3">Side 3:</label>
-                        <input type="number" id="side3" name="side3" required>
-                        <br>
-                    `;
-                    break;
-                default:
-                    // If no shape type is selected or unknown shape type, do nothing
-                    break;
+            // Loop through table rows to find the cone with the matching ID
+            for (let i = 1; i < tableRows.length; i++) { // Start from 1 to skip header row
+                const cells = tableRows[i].getElementsByTagName('td');
+                const idCell = parseInt(cells[0].textContent); // Assuming the cone ID is in the first cell
+
+                if (idCell === coneId) {
+                    const radius = cells[1].textContent;
+                    const height = cells[2].textContent;
+                    const slantHeight = cells[3].textContent;
+
+                    // Display the input fields for updating cone dimensions
+                    document.getElementById('updateRadius').value = radius;
+                    document.getElementById('updateHeight').value = height;
+                    document.getElementById('updateSlantHeight').value = slantHeight;
+                    break; // Exit loop after finding the cone
+                }
             }
         }
 
-        // Add event listener to shape type dropdown to call the showShapeDimensions function when it changes
-        document.getElementById('shapeType').addEventListener('change', showShapeDimensions);
+        // event listener to cone ID input to call the function when it changes
+        // document.getElementById('updateConeId').addEventListener('change', showUpdateConeDimensions);
 
-        // Function to handle form submission
-        function addShape() {
-            // Get shape type from the form
-            const shapeType = document.getElementById('shapeType').value;
+        // Function to handle form submission for adding a new cone
+        function addCone() {
+            // Increment the coneCounter to generate a unique id for each cone
+            coneCounter++;
 
-            // Get shape dimensions from the form based on the selected shape type
-            let dimensions;
-            switch (shapeType) {
-                case 'circle':
-                    dimensions = { radius: parseFloat(document.getElementById('radius').value) };
-                    break;
-                case 'rectangle':
-                    dimensions = {
-                        length: parseFloat(document.getElementById('length').value),
-                        width: parseFloat(document.getElementById('width').value)
-                    };
-                    break;
-                case 'triangle':
-                    dimensions = {
-                        side1: parseFloat(document.getElementById('side1').value),
-                        side2: parseFloat(document.getElementById('side2').value),
-                        side3: parseFloat(document.getElementById('side3').value)
-                    };
-                    break;
-                default:
-                    // If no shape type is selected or unknown shape type, do nothing
-                    break;
-            }
+            // Get cone dimensions from the form
+            const radius = parseFloat(document.getElementById('radius').value);
+            const height = parseFloat(document.getElementById('height').value);
+            const slantHeight = parseFloat(document.getElementById('slantHeight').value);
 
-            // Add the entered shape to the "Entered Shapes" table
-            const tableBody = document.getElementById('enteredShapesTableBody');
+            // Add the entered cone to the "Entered Cones" table
+            const tableBody = document.getElementById('enteredConesTableBody');
             const newRow = tableBody.insertRow();
 
-            // Insert cells for shape type and dimensions
-            const shapeTypeCell = newRow.insertCell();
-            const dimensionsCell = newRow.insertCell();
+            // Insert cells for cone id, radius, height, and slant height
+            const coneIdCell = newRow.insertCell();
+            const radiusCell = newRow.insertCell();
+            const heightCell = newRow.insertCell();
+            const slantHeightCell = newRow.insertCell();
 
             // Set the text content for the cells
-            shapeTypeCell.textContent = shapeType;
-            dimensionsCell.textContent = JSON.stringify(dimensions);
+            coneIdCell.textContent = coneCounter; // Assigning the cone id
+            radiusCell.textContent = radius;
+            heightCell.textContent = height;
+            slantHeightCell.textContent = slantHeight;
 
-            // Clear the form after adding the shape
+            // Clear the form after adding the cone
             document.getElementById('shapeForm').reset();
         }
     </script>
