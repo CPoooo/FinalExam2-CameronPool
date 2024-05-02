@@ -4,11 +4,10 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Add Cone</title>
-    <link rel="stylesheet" href="styles.css">
 </head>
 <body>
     <h1>Add Cone</h1>
-    <form id="shapeForm">
+    <form id="coneForm">
         <label for="radius">Radius:</label>
         <input type="number" id="radius" name="radius" required>
         <br>
@@ -21,85 +20,37 @@
         <button type="button" onclick="addCone()">Add Cone</button>
     </form>
 
-    <!-- Display table of entered cones -->
-    <h2>Entered Cones</h2>
-    <table id="coneTable">
-        <thead>
-            <tr>
-                <th>Cone ID</th>
-                <th>Radius</th>
-                <th>Height</th>
-                <th>Slant Height</th>
-            </tr>
-        </thead>
-        <tbody id="enteredConesTableBody">
-            <!-- This section will be populated dynamically with entered cones -->
-        </tbody>
-    </table>
-
-    <!-- JavaScript to dynamically add cone dimensions inputs -->
     <script>
-        let coneCounter = 0; // Counter for generating unique cone ids
+        async function addCone() {
+            const radius = document.getElementById('radius').value;
+            const height = document.getElementById('height').value;
+            const slantHeight = document.getElementById('slantHeight').value;
 
-        // Function to dynamically populate input fields for updating cone dimensions based on cone ID
-        function showUpdateConeDimensions() {
-            // Get the selected cone ID
-            const coneId = parseInt(document.getElementById('updateConeId').value);
+            const coneData = {
+                radius: parseFloat(radius),
+                height: parseFloat(height),
+                slantHeight: parseFloat(slantHeight)
+            };
 
-            // Find the corresponding cone in the table
-            const tableRows = document.getElementById('coneTable').getElementsByTagName('tr');
-            let dimensionsInputHTML = '';
+            try {
+                const response = await fetch('/addCone', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(coneData)
+                });
 
-            // Loop through table rows to find the cone with the matching ID
-            for (let i = 1; i < tableRows.length; i++) { // Start from 1 to skip header row
-                const cells = tableRows[i].getElementsByTagName('td');
-                const idCell = parseInt(cells[0].textContent); // Assuming the cone ID is in the first cell
-
-                if (idCell === coneId) {
-                    const radius = cells[1].textContent;
-                    const height = cells[2].textContent;
-                    const slantHeight = cells[3].textContent;
-
-                    // Display the input fields for updating cone dimensions
-                    document.getElementById('updateRadius').value = radius;
-                    document.getElementById('updateHeight').value = height;
-                    document.getElementById('updateSlantHeight').value = slantHeight;
-                    break; // Exit loop after finding the cone
+                if (response.ok) {
+                    const data = await response.json();
+                    alert(`Cone added successfully with ID: ${data.coneID}`);
+                } else {
+                    alert('Failed to add cone');
                 }
+            } catch (error) {
+                console.error('Error:', error);
+                alert('Failed to add cone');
             }
-        }
-
-        // event listener to cone ID input to call the function when it changes
-        // document.getElementById('updateConeId').addEventListener('change', showUpdateConeDimensions);
-
-        // Function to handle form submission for adding a new cone
-        function addCone() {
-            // Increment the coneCounter to generate a unique id for each cone
-            coneCounter++;
-
-            // Get cone dimensions from the form
-            const radius = parseFloat(document.getElementById('radius').value);
-            const height = parseFloat(document.getElementById('height').value);
-            const slantHeight = parseFloat(document.getElementById('slantHeight').value);
-
-            // Add the entered cone to the "Entered Cones" table
-            const tableBody = document.getElementById('enteredConesTableBody');
-            const newRow = tableBody.insertRow();
-
-            // Insert cells for cone id, radius, height, and slant height
-            const coneIdCell = newRow.insertCell();
-            const radiusCell = newRow.insertCell();
-            const heightCell = newRow.insertCell();
-            const slantHeightCell = newRow.insertCell();
-
-            // Set the text content for the cells
-            coneIdCell.textContent = coneCounter; // Assigning the cone id
-            radiusCell.textContent = radius;
-            heightCell.textContent = height;
-            slantHeightCell.textContent = slantHeight;
-
-            // Clear the form after adding the cone
-            document.getElementById('shapeForm').reset();
         }
     </script>
 </body>

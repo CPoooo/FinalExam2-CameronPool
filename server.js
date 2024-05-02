@@ -1,126 +1,68 @@
-const express = require('express');
-const bodyParser = require('body-parser');
-const path = require('path');
-const AWS = require('aws-sdk'); 
+import express from "express";
+import { fileURLToPath } from 'url';
+import { dirname, join } from 'path';
+import { DynamoDBClient } from "@aws-sdk/client-dynamodb";
+import { PutCommand, DynamoDBDocumentClient } from "@aws-sdk/lib-dynamodb";
+import { v4 as uuidv4 } from 'uuid';
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = dirname(__filename);
+
+const client = new DynamoDBClient({});
+const docClient = DynamoDBDocumentClient.from(client);
 
 const app = express();
-const port = 3000;
 
-// Middleware to parse JSON bodies
-app.use(bodyParser.json());
+// Add middleware to parse JSON bodies
+app.use(express.json());
 
 // Serve static files from the 'public' directory
-app.use(express.static(path.join(__dirname, 'public')));
+app.use(express.static(join(__dirname, 'public')));
 
-// Set the correct MIME type for CSS files
-app.use((req, res, next) => {
-  if (req.url.endsWith('.css')) {
-    res.setHeader('Content-Type', 'text/css');
-  }
-  next();
+// Handle GET requests to serve the index.html file
+app.get("/", (req, res) => {
+  res.sendFile(join(__dirname, 'index.html'));
 });
 
-// home page
-app.get('/', (req, res) => {
-    // Send the index.html file when users access the root URL
-    res.sendFile(path.join(__dirname, 'index.html'));
-});
+// Handle POST requests to add cone data to DynamoDB
+app.post("/addCone", async (req, res) => {
+    const coneData = req.body;
+    console.log("Received coneData:", coneData); // checking cone data
 
-
-// my AWS credentials
-AWS.config.update({
-    region: 'us-east-2', // AWS region
-    accessKeyId: 'AKIATFBNJRUQNNLNL36H', // AWS access key ID
-    secretAccessKey: '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' // AWS secret access key
-});
-
-// DynamoDB service object
-const dynamodb = new AWS.DynamoDB();
-
-// Define table schema for cones
-const params = {
-    TableName: 'cameronpool_cones',
-    KeySchema: [
-        { AttributeName: 'coneID', KeyType: 'HASH' } // Partition key
-    ],
-    AttributeDefinitions: [
-        { AttributeName: 'coneID', AttributeType: 'S' } // 'coneID' attribute type string
-    ],
-    ProvisionedThroughput: {
-        ReadCapacityUnits: 5,
-        WriteCapacityUnits: 5
-    }
-};
-
-// Create the DynamoDB table for cones
-dynamodb.createTable(params, (err, data) => {
-    if (err) {
-        console.error('Unable to create table. Error JSON:', JSON.stringify(err, null, 2));
-    } else {
-        console.log('Created table. Table description JSON:', JSON.stringify(data, null, 2));
+    try {
+        const coneID = await addConeToDB(coneData);
+        res.status(201).json({ message: "Cone added to DynamoDB", coneID });
+    } catch (error) {
+        console.error("Error adding cone to DynamoDB:", error);
+        res.status(500).json({ message: "Failed to add cone to DynamoDB" });
     }
 });
 
-// Route to add a new cone shape to DynamoDB
-app.post('/cones', (req, res) => {
-    const newCone = req.body;
+// Function to add cone data to DynamoDB
+async function addConeToDB(coneData) {
+    const coneID = uuidv4();
 
-    // Create params for DynamoDB put operation
-    const params = {
-        TableName: 'cameronpool_cones', // Update table name
+    const putCommand = new PutCommand({
+        TableName: "cameronpool_cones",
         Item: {
-            'coneID': { S: newCone.coneID }, // Assuming 'coneID' is a string
-            'radius': { N: newCone.radius.toString() },
-            'height': { N: newCone.height.toString() },
-            'slantHeight': { N: newCone.slantHeight.toString() }
-        }
-    };
-
-    // Put item into DynamoDB table
-    dynamodb.putItem(params, (err, data) => {
-        if (err) {
-            console.error('Unable to add cone shape to DynamoDB. Error:', err);
-            res.status(500).send('Unable to add cone shape.');
-        } else {
-            console.log('Successfully added cone shape to DynamoDB:', data);
-            res.status(201).send('Cone shape added successfully.');
+            "coneID": coneID,
+            "radius": coneData.radius,
+            "height": coneData.height,
+            "slantHeight": coneData.slantHeight
         }
     });
-});
 
-// Route to update an existing cone shape in DynamoDB
-app.put('/cones/:id', (req, res) => {
-    const id = req.params.id;
-    const updatedCone = req.body;
+    try {
+        await docClient.send(putCommand);
+        console.log("Cone added to DynamoDB with ID:", coneID);
+        return coneID;
+    } catch (err) {
+        console.error("Error adding cone to DynamoDB:", err);
+        throw err;
+    }
+}
 
-    // Create params for DynamoDB update operation
-    const params = {
-        TableName: 'cameronpool_cones', // Update table name
-        Key: {
-            'coneID': { S: id } // Assuming 'coneID' is a string
-        },
-        UpdateExpression: 'SET radius = :r, height = :h, slantHeight = :s',
-        ExpressionAttributeValues: {
-            ':r': { N: updatedCone.radius.toString() },
-            ':h': { N: updatedCone.height.toString() },
-            ':s': { N: updatedCone.slantHeight.toString() }
-        },
-        ReturnValues: 'UPDATED_NEW'
-    };
-
-    // Update item in DynamoDB table
-    dynamodb.updateItem(params, (err, data) => {
-        if (err) {
-            console.error('Unable to update cone shape in DynamoDB. Error:', err);
-            res.status(500).send('Unable to update cone shape.');
-        } else {
-            console.log('Successfully updated cone shape in DynamoDB:', data);
-            res.send('Cone shape updated successfully.');
-        }
-    });
-});
-
-// Start the server
-app.listen(port, () => {
-    console.log(`Server is running on port ${port}`);
+const PORT = process.env.PORT || 3000;
+app.listen(PORT, () => {
+    console.log(`Server is running on port ${PORT}`);
 });
