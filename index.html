@@ -107,26 +107,40 @@
         }
 
         async function displayAllCones() {
-            try {
-                const response = await fetch('/getAllCones');
-                console.log(response);
-                if (response.ok) {
-                    const data = await response.json();
-                    const coneList = document.getElementById('coneList');
-                    coneList.innerHTML = ''; // Clear previous list
-                    data.forEach(cone => {
-                        const listItem = document.createElement('li');
-                        listItem.textContent = `Cone ID: ${cone.coneID}, Radius: ${cone.radius}, Height: ${cone.height}, Slant Height: ${cone.slantHeight}`;
-                        coneList.appendChild(listItem);
-                    });
-                } else {
-                    alert('Failed to fetch cones');
-                }
-            } catch (error) {
-                console.error('Error fetching cones:', error);
-                alert('Failed to fetch cones');
-            }
+    try {
+        const response = await fetch('/getAllCones');
+        if (response.ok) {
+            const data = await response.json();
+            const coneList = document.getElementById('coneList');
+            coneList.innerHTML = ''; // Clear previous list
+            data.forEach(cone => {
+                const coneContainer = document.createElement('div');
+                coneContainer.classList.add('cone-container');
+
+                const coneInfo = document.createElement('div');
+                coneInfo.classList.add('cone-info');
+                coneInfo.innerHTML = `
+                    <p><strong>Cone ID:</strong> ${cone.coneID.S}</p>
+                    <p><strong>Radius:</strong> ${cone.radius.N}</p>
+                    <p><strong>Height:</strong> ${cone.height.N}</p>
+                    <p><strong>Slant Height:</strong> ${cone.slantHeight.N}</p>
+                `;
+
+                const separator = document.createElement('hr');
+
+                coneContainer.appendChild(coneInfo);
+                coneContainer.appendChild(separator);
+                coneList.appendChild(coneContainer);
+            });
+        } else {
+            alert('Failed to fetch cones');
         }
+    } catch (error) {
+        console.error('Error fetching cones:', error);
+        alert('Failed to fetch cones');
+    }
+}
+
     </script>
 </body>
 </html>
