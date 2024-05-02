@@ -1,7 +1,7 @@
 import express from "express";
 import { fileURLToPath } from 'url';
 import { dirname, join } from 'path';
-import { DynamoDBClient } from "@aws-sdk/client-dynamodb";
+import { DynamoDBClient, ExecuteStatementCommand } from "@aws-sdk/client-dynamodb";
 import { PutCommand, UpdateCommand, GetCommand, DynamoDBDocumentClient } from "@aws-sdk/lib-dynamodb";
 import { v4 as uuidv4 } from 'uuid';
 
@@ -58,12 +58,13 @@ async function updateConeInDB(coneID, updatedConeData) {
 }
 
 async function getAllConesFromDB() {
-    const scanCommand = new GetCommand({
-        TableName: "cameronpool_cones"
+    const scanCommand = new ExecuteStatementCommand({
+        Statement: "select * from cameronpool_cones"
     });
 
     try {
         const data = await docClient.send(scanCommand);
+        console.log(data);
         return data.Items;
     } catch (err) {
         console.error("Error fetching cones from DynamoDB:", err);
