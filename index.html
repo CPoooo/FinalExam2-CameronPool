@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Add Cone</title>
+    <title>Add and Update Cone</title>
 </head>
 <body>
     <h1>Add Cone</h1>
@@ -18,6 +18,23 @@
         <input type="number" id="slantHeight" name="slantHeight" required>
         <br>
         <button type="button" onclick="addCone()">Add Cone</button>
+    </form>
+
+    <h1>Update Cone</h1>
+    <form id="updateConeForm">
+        <label for="coneID">Cone ID:</label>
+        <input type="text" id="coneID" name="coneID" required>
+        <br>
+        <label for="updatedRadius">Updated Radius:</label>
+        <input type="number" id="updatedRadius" name="radius" required>
+        <br>
+        <label for="updatedHeight">Updated Height:</label>
+        <input type="number" id="updatedHeight" name="height" required>
+        <br>
+        <label for="updatedSlantHeight">Updated Slant Height:</label>
+        <input type="number" id="updatedSlantHeight" name="slantHeight" required>
+        <br>
+        <button type="button" onclick="updateCone()">Update Cone</button>
     </form>
 
     <script>
@@ -50,6 +67,38 @@
             } catch (error) {
                 console.error('Error:', error);
                 alert('Failed to add cone');
+            }
+        }
+
+        async function updateCone() {
+            const coneID = document.getElementById('coneID').value;
+            const updatedRadius = document.getElementById('updatedRadius').value;
+            const updatedHeight = document.getElementById('updatedHeight').value;
+            const updatedSlantHeight = document.getElementById('updatedSlantHeight').value;
+
+            const updatedConeData = {
+                radius: parseFloat(updatedRadius),
+                height: parseFloat(updatedHeight),
+                slantHeight: parseFloat(updatedSlantHeight)
+            };
+
+            try {
+                const response = await fetch(`/updateCone/${coneID}`, {
+                    method: 'PUT',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(updatedConeData)
+                });
+
+                if (response.ok) {
+                    alert('Cone updated successfully');
+                } else {
+                    alert('Failed to update cone');
+                }
+            } catch (error) {
+                console.error('Error updating cone:', error);
+                alert('Failed to update cone');
             }
         }
     </script>
