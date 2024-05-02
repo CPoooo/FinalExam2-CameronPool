@@ -2,7 +2,7 @@ import express from "express";
 import { fileURLToPath } from 'url';
 import { dirname, join } from 'path';
 import { DynamoDBClient } from "@aws-sdk/client-dynamodb";
-import { PutCommand, UpdateCommand, DynamoDBDocumentClient } from "@aws-sdk/lib-dynamodb";
+import { PutCommand, UpdateCommand, GetCommand, DynamoDBDocumentClient } from "@aws-sdk/lib-dynamodb";
 import { v4 as uuidv4 } from 'uuid';
 
 const __filename = fileURLToPath(import.meta.url);
@@ -57,6 +57,20 @@ async function updateConeInDB(coneID, updatedConeData) {
     }
 }
 
+async function getAllConesFromDB() {
+    const scanCommand = new GetCommand({
+        TableName: "cameronpool_cones"
+    });
+
+    try {
+        const data = await docClient.send(scanCommand);
+        return data.Items;
+    } catch (err) {
+        console.error("Error fetching cones from DynamoDB:", err);
+        throw err;
+    }
+}
+
 const app = express();
 
 app.use(express.static(join(__dirname, 'public')));
@@ -87,6 +101,15 @@ app.put("/updateCone/:coneID", async (req, res) => {
         res.status(200).json({ message: "Cone updated successfully" });
     } catch (error) {
         res.status(500).json({ message: "Failed to update cone" });
+    }
+});
+
+app.get("/getAllCones", async (req, res) => {
+    try {
+        const cones = await getAllConesFromDB();
+        res.status(200).json(cones);
+    } catch (error) {
+        res.status(500).json({ message: "Failed to get all cones" });
     }
 });
 
