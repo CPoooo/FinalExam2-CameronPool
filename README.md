@@ -27,6 +27,6 @@ This command will also start the server, using `node server.js` under the hood.
 
 Once the server is running, you can interact with the application by opening it in your web browser. Here are the main features:
 
-- **Add Shape**: Select a shape type from the dropdown menu, enter the dimensions, and click "Add Shape" to add it to the table.
-- **Update Shape**: Enter the shape ID and new dimensions in the "Update Shape" section, then click "Update Shape" to modify an existing shape.
-- **View Shapes**: The table displays all entered shapes, including their IDs, types, and dimensions.
+- **Add Cone**: Enter in the desired dimensions of your cone and then click **Add Cone** to add the cone to DynamoDB.
+- **Update Cone**: Enter the coneID from DyanmoDB that corresponds with the correct cone and enter in the dimensions, then click **Update Cone** to make a change to that cone.
+- **Display All Cones**: Click the **Display Cones** button in order to view all cones and their dimensions from DynamoDB.
