@@ -29,4 +29,4 @@ Once the server is running, you can interact with the application by opening it 
 
 - **Add Cone**: Enter in the desired dimensions of your cone and then click **Add Cone** to add the cone to DynamoDB.
 - **Update Cone**: Enter the coneID from DyanmoDB that corresponds with the correct cone and enter in the dimensions, then click **Update Cone** to make a change to that cone.
-- **Display All Cones**: Click the **Display Cones** button in order to view all cones and their dimensions from DynamoDB.
+- **Display All Cones**: Click the **Display All Cones** button in order to view all cones and their dimensions from DynamoDB.
